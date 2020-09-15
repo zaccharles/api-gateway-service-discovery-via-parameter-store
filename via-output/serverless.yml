@@ -1,0 +1,13 @@
+service: service-discovery-via-output
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, 'dev'}
+
+functions:
+  example:
+    handler: handler.handle
+    environment:
+      HELLO_SERVICE_URL:
+        Fn::ImportValue: helloservice-${self:provider.stage}-url

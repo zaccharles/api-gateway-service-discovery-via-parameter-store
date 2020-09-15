@@ -1,0 +1,36 @@
+service: helloservice
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, 'dev'}
+
+functions:
+  hello:
+    handler: handler.hello
+    events:
+      - httpApi: GET /
+
+resources:
+  Resources:
+    # Store URL in Parameter Store so it can be read by another service
+    HttpApiUrlParameter:
+      Type: AWS::SSM::Parameter
+      Properties:
+        Name: ${self:service}-${self:provider.stage}-url
+        Type: String
+        Value:
+          Fn::Join:
+            - ""
+            - - https://
+              - Ref: HttpApi
+              - ".execute-api."
+              - Ref: AWS::Region
+              - "."
+              - Ref: AWS::URLSuffix
+
+  Outputs:
+    # Export URL so it can be imported by another CloudFormation stack
+    HttpApiUrl:
+      Export:
+        Name: ${self:service}-${self:provider.stage}-url

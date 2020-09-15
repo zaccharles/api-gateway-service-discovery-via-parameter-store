@@ -1,0 +1,12 @@
+service: service-discovery-via-parameter-store
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, 'dev'}
+
+functions:
+  example:
+    handler: handler.handle
+    environment:
+      HELLO_SERVICE_URL: ${ssm:helloservice-${self:provider.stage}-url}
